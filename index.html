@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IT 101: AI & Cyber (Jordanian Mix)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Orbitron:wght@400;700;900&family=Urbanist:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --neon-green: #39ff14;
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-red: #ff3131;
+            --text-light: #e2e8f0;
+            --glass: rgba(13, 20, 35, 0.96);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Cairo', sans-serif; /* Arabic Font Primary */
+            overflow: hidden; 
+            height: 100vh;
+            width: 100vw;
+            text-align: right;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transition: background-image 0.5s ease;
+        }
+
+        /* Header Fonts */
+        h1, h2, h3, h4 { 
+            font-family: 'Orbitron', sans-serif; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            direction: ltr; /* Keep English headers LTR */
+            text-align: center;
+        }
+
+        h1 { font-size: 2.5rem; text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 10px; line-height: 1.1; }
+        h2 { font-size: 1.6rem; color: var(--neon-green); margin-bottom: 20px; border-bottom: 1px solid var(--neon-green); padding-bottom: 10px; display: inline-block; }
+        h3 { font-size: 1.3rem; color: var(--neon-cyan); margin-bottom: 10px; margin-top: 20px; text-align: right; direction: rtl;}
+        p { font-size: 1rem; line-height: 1.6; margin-bottom: 15px; color: #cbd5e1; direction: rtl; }
+        li { margin-bottom: 10px; line-height: 1.5; direction: rtl; }
+        ul { padding-right: 20px; padding-left: 0; }
+
+        .highlight { color: var(--neon-pink); font-weight: bold; }
+        .warning { color: var(--neon-red); font-weight: bold; }
+
+        #presentation-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
+
+        .slide {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; visibility: hidden;
+            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+            transform: translateX(50px);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 15px; padding-bottom: 90px;
+        }
+
+        .slide.active { opacity: 1; visibility: visible; transform: translateX(0); z-index: 10; }
+
+        .content-box {
+            background: var(--glass);
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px; 
+            height: auto;
+            max-height: 90vh; 
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-right: 4px solid var(--neon-pink);
+            border-left: none;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: right;
+        }
+        .card.danger { border-color: var(--neon-red); background: rgba(255, 0, 0, 0.05); }
+
+        .center-layout { text-align: center; }
+
+        .controls-area {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 70px;
+            background: rgba(15, 23, 42, 0.98);
+            border-top: 1px solid var(--neon-green);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; z-index: 100;
+            direction: ltr;
+        }
+
+        .nav-btn {
+            background: transparent; border: 1px solid var(--neon-green);
+            color: var(--neon-green); padding: 10px 20px;
+            border-radius: 5px; font-weight: bold; font-family: 'Orbitron';
+        }
+        
+        .nav-btn:active { background: var(--neon-green); color: black; }
+
+        .progress-bar {
+            position: absolute; top: -3px; left: 0; height: 3px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+            width: 0%; transition: width 0.3s;
+        }
+
+        /* --- THEMES --- */
+        body.theme-ai {
+            background-image: 
+                linear-gradient(rgba(255, 0, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+        }
+        
+        body.theme-cyber {
+            background-image: 
+                linear-gradient(rgba(57, 255, 20, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(57, 255, 20, 0.03) 1px, transparent 1px);
+        }
+        body.theme-cyber .content-box { border-color: var(--neon-green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.1); }
+        body.theme-cyber h1 { text-shadow: 0 0 15px var(--neon-green); color: var(--neon-green); }
+        body.theme-cyber .card { border-right-color: var(--neon-green); }
+
+        /* --- GLITCH TRANSITION --- */
+        #glitch-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 999;
+            display: none; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+        }
+        .glitch-text {
+            font-family: 'Orbitron'; font-size: 4rem; color: #fff;
+            text-transform: uppercase; position: relative;
+            text-align: center;
+        }
+        
+        .glitch-active {
+            display: flex !important;
+            animation: glitch-anim 1.5s forwards;
+        }
+
+        @keyframes glitch-anim {
+            0% { opacity: 0; }
+            10% { opacity: 1; background: #000; }
+            20% { background: var(--neon-red); }
+            30% { background: #000; transform: skewX(10deg); }
+            40% { transform: skewX(-10deg); }
+            50% { background: var(--neon-green); opacity: 1; }
+            80% { opacity: 1; background: #000; }
+            100% { opacity: 0; pointer-events: none; }
+        }
+
+        /* Standard animations */
+        @keyframes pulse { 0% { opacity: 0.8; } 100% { opacity: 1; text-shadow: 0 0 10px var(--neon-cyan); } }
+        .pulse-text { animation: pulse 1.5s infinite alternate; }
+
+        pre {
+            background: #000; color: #fff; padding: 10px; border-radius: 5px;
+            font-size: 0.85rem; white-space: pre-wrap; border: 1px solid #333;
+            margin: 10px 0; position: relative; text-align: left; direction: ltr;
+        }
+        .copy-btn {
+            display: block; background: var(--neon-cyan); color: #000; border: none;
+            padding: 8px 15px; border-radius: 5px; font-family: 'Orbitron'; font-weight: bold;
+            font-size: 0.8rem; cursor: pointer; margin-bottom: 10px; transition: 0.2s;
+        }
+        .copy-btn:active { transform: scale(0.95); background: var(--neon-green); }
+        
+        /* Specific fix for card headers to be LTR/English */
+        .card h3, .card h4 {
+            text-align: left;
+            direction: ltr;
+        }
+        
+    </style>
+</head>
+<body class="theme-ai">
+
+    <div id="glitch-overlay">
+        <h1 class="glitch-text" style="color: var(--neon-red)">SYSTEM BREACH<br>DEFENSE MODE</h1>
+    </div>
+
+<div id="presentation-container">
+
+    <!-- ==================== PART 1: ARTIFICIAL INTELLIGENCE ==================== -->
+
+    <!-- SLIDE 1: AI INTRO -->
+    <section class="slide active center-layout" data-theme="ai">
+        <div class="content-box" style="border:none; background:transparent; box-shadow:none;">
+            <i class="fa-solid fa-brain" style="font-size: 5rem; color: var(--neon-cyan); margin-bottom: 20px;"></i>
+            <h1 class="pulse-text">IT 101</h1>
+            <p style="font-size: 1.4rem; color: var(--neon-pink); letter-spacing: 2px; direction: ltr;">MODULE 1: THE FUTURE</p>
+            
+            <div style="margin-top: 40px; padding: 20px; border: 1px solid var(--neon-cyan); border-radius: 10px; background: rgba(0,0,0,0.5);">
+                <p style="margin:0; font-size: 1.2rem;">Master the Machine.<br>سوق الآلة، ولا تخليها تسوقك.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 2: AI EVOLUTION -->
+    <section class="slide" data-theme="ai">
+        <div class="content-box">
+            <h2>The Evolution of Intelligence</h2>
+            <p>الذكاء الاصطناعي ما طلع فجأة بيوم وليلة. هو نتيجة 70 سنة من الرياضيات، ومر بثلاث مراحل رئيسية:</p>
+            
+            <div class="card" style="border-right-color: var(--neon-cyan);">
+                <h4 style="color: var(--neon-cyan)">1. Machine Learning (ML)</h4>
+                <p><strong>"The Student":</strong> زي لما تعلم طفل صغير. بتفرجيه 1000 صورة "بسة" و 1000 صورة "كلب". الكمبيوتر بحلل الصور وبلاقي الأنماط (Patterns) لحاله.
+                <br><span style="color: #bbb;">• Example:</span> توصيات Netflix وفلتر السبام.</p>
+            </div>
+
+            <div class="card" style="border-right-color: var(--neon-pink);">
+                <h4 style="color: var(--neon-pink)">2. Deep Learning (DL)</h4>
+                <p><strong>"The Brain":</strong> هون عملنا ثورة. بنينا "شبكات عصبية" (Neural Networks) بتحاكي مخ الإنسان. صار الكمبيوتر "يشوف" و "يسمع" ويفهم السياق.
+                <br><span style="color: #bbb;">• Example:</span> FaceID و السيارات ذاتية القيادة (Tesla).</p>
+            </div>
+
+            <div class="card" style="border-right-color: var(--neon-green);">
+                <h4 style="color: var(--neon-green)">3. Generative AI (GenAI)</h4>
+                <p><strong>"The Creator":</strong> (اليوم). الـ AI بطل بس يحلل داتا قديمة، صار <strong>يخلق</strong> اشي جديد من الصفر (New Data).
+                <br><span style="color: #bbb;">• Example:</span> كتابة Code، رسم صور، وصناعة فيديو.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 3: THE AI TOOLKIT -->
+    <section class="slide" data-theme="ai">
+        <div class="content-box">
+            <h2>The AI Toolkit</h2>
+            <p>الـ AI مش أداة وحدة. في أداة متخصصة لكل نوع من أنواع "الإبداع". هدول أهم اللاعبين:</p>
+
+            <!-- 1. TEXT SECTION -->
+            <div class="card">
+                <h4 style="color: var(--neon-cyan);"><i class="fa-solid fa-comment-dots"></i> 1. Text & Research</h4>
+                <ul style="margin-top: 10px;">
+                    <li style="margin-bottom: 10px;">
+                        <strong style="color: var(--neon-green)">ChatGPT:</strong>
+                        <br>ميزته "المنطق" (Reasoning). ممتاز للكتابة الإبداعية، العصف الذهني (Brainstorming)، وحل مشاكل البرمجة.
+                    </li>
+                    <li>
+                        <strong style="color: var(--neon-cyan)">Gemini:</strong>
+                        <br>ميزته "الإنترنت" (Live Data). ممتاز للبحث عن معلومة صارت قبل دقيقة، تلخيص ملفات PDF، والتوثيق (Citations).
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 2. VISUALS SECTION -->
+            <div class="card">
+                <h4 style="color: var(--neon-pink);"><i class="fa-solid fa-eye"></i> 2. Visuals & Video</h4>
+                <ul>
+                    <li><strong>Images:</strong> Midjourney, Dall-E 3 (رسم لوحات فنية).</li>
+                    <li><strong>Video:</strong> Sora, Veo (تحويل النص لفيديو سينمائي).</li>
+                </ul>
+            </div>
+
+            <!-- 3. CODING, AUDIO & AGENTS -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="card" style="margin-bottom: 0; border-color: var(--neon-green);">
+                    <h4 style="color: var(--neon-green); font-size: 1rem;"><i class="fa-solid fa-code"></i> 3. Coding</h4>
+                    <p style="font-size: 0.9rem;"><strong>GitHub Copilot</strong>: بكمل الكود عنك (Autofill).</p>
+                </div>
+                <div class="card" style="margin-bottom: 0; border-color: var(--neon-red);">
+                    <h4 style="color: var(--neon-red); font-size: 1rem;"><i class="fa-solid fa-music"></i> 4. Audio</h4>
+                    <p style="font-size: 0.9rem;"><strong>ElevenLabs</strong>: استنساخ الأصوات (Voice Cloning).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 4: AGENTS -->
+    <section class="slide" data-theme="ai">
+        <div class="content-box">
+            <h2>Agents vs Chatbots</h2>
+            <p>المستقبل رايح باتجاه الـ Action. الفرق بينهم جوهري:</p>
+
+            <div class="card" style="border-right-color: var(--neon-cyan);">
+                <h4 style="color: var(--neon-cyan)">Chatbot (Passive)</h4>
+                <p>هذا "مستشار". بتسأله: "كيف أحجز تذكرة للبترا؟"
+                <br>بجاوبك: "فوت موقع Jett، اختار الوقت، وادفع بالفيزا."
+                <br><strong>النتيجة:</strong> أنت لسه عليك كل الشغل.</p>
+            </div>
+
+            <div class="card" style="border-right-color: var(--neon-pink);">
+                <h4 style="color: var(--neon-pink)">Agent (Active)</h4>
+                <p>هذا "موظف تنفيذي". بتسأله: "احجزلي للبترا بكرة الصبح".
+                <br>الـ Agent بروح بفتح الموقع، بختار الرحلة، بعبّي بياناتك، وبدفع عنك، وببعتلك التذكرة PDF.
+                <br><strong>النتيجة:</strong> الشغل خلص وأنت بتشرب قهوة.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 5: AGENT EXAMPLES -->
+    <section class="slide" data-theme="ai">
+        <div class="content-box">
+            <h2>Meet the Agents</h2>
+            <p>هذول مش خيال علمي، هذول أدوات شغالة اليوم:</p>
+
+            <div class="card" style="border-right-color: var(--neon-pink);">
+                <h4 style="color: var(--neon-pink)">1. Devin (The Engineer)</h4>
+                <p>أول مهندس برمجيات AI بالكامل.
+                <br>• بتعطيه: "ابنيلي موقع ببيع أحذية".
+                <br>• النتيجة: بكتب الكود، بصلح الأخطاء (Debug)، وبرفع الموقع (Deploy) لحاله.</p>
+            </div>
+
+            <div class="card" style="border-right-color: var(--neon-cyan);">
+                <h4 style="color: var(--neon-cyan)">2. AutoGPT (The Manager)</h4>
+                <p>بتعطيه هدف عام: "زيد مبيعات متجري".
+                <br>هو لحاله بكسر الهدف لخطوات: (بحث بالسوق -> كتابة إعلانات -> نشر بوستات). بضل يشتغل ليوصل للهدف.</p>
+            </div>
+
+            <div class="card" style="border-right-color: var(--neon-green);">
+                <h4 style="color: var(--neon-green)">3. Rabbit R1 (The Device)</h4>
+                <p>جهاز صغير (مش تلفون). بتكبس وبتطلب: "اطلبلي أوبر عالبيت وشغل أغنية لعمرو دياب". هو بفتح التطبيقات وبنفذ.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 6: PROMPT GAME -->
+    <section class="slide" data-theme="ai">
+        <div class="content-box" style="border-color: var(--neon-pink);">
+            <h2>The Prompt Game</h2>
+            <p><strong>التحدي:</strong> بدنا نولد صورة <span class="highlight">إلك إنت</span> تكون Realistic 100%. السر بالتفاصيل. الـ AI ما بعرفك، لازم توصفله كل اشي.</p>
+            
+            <button class="copy-btn" onclick="copyPrompt('en-text')">Copy English Prompt</button>
+            <pre id="en-text">I want a single, extremely detailed, hyper-realistic image-generation prompt written about the user. The prompt must be personalized, using everything you know about the user (background, profession, studies, interests, technical skills, environment, tools, aesthetic preferences, and realistic appearance assumptions). Do not mention the AI, explanations, or formatting notes. Do not generate the image itself. Write only one final prompt. The prompt must: Be hyper-realistic, include environment, clothing, mood, and lighting, include professional camera details, match the user’s real-world context, avoid fantasy/anime, and assume cinematic quality. Output only the final image prompt, nothing else.</pre>
+        </div>
+    </section>
+
+    <!-- ==================== TRANSITION: GLITCH ==================== -->
+    <section class="slide" id="transition-slide" data-theme="transition">
+        <div class="content-box" style="border:none; background:transparent; box-shadow:none; text-align:center;">
+             <h1 class="pulse-text" style="color: var(--neon-red); font-size: 4rem;">WARNING<br>THREAT DETECTED</h1>
+        </div>
+    </section>
+
+    <!-- ==================== PART 2: CYBERSECURITY ==================== -->
+
+    <!-- SLIDE 7: CYBER INTRO -->
+    <section class="slide" data-theme="cyber">
+        <div class="content-box" style="border:none; background:transparent; box-shadow:none;">
+            <i class="fa-solid fa-shield-halved" style="font-size: 5rem; color: var(--neon-green); margin-bottom: 20px;"></i>
+            <h1 class="pulse-text">CYBER DEFENSE</h1>
+            <p style="font-size: 1.4rem; color: var(--neon-green); letter-spacing: 2px; direction: ltr;">MODULE 2: PROTECT YOURSELF</p>
+            
+            <div style="margin-top: 40px; padding: 20px; border: 1px solid var(--neon-green); border-radius: 10px; background: rgba(0,0,0,0.5);">
+                <p style="margin:0;">The Human Firewall.<br>أنت "الجدار الناري" البشري.</p>
+            </div>
+            <p style="margin-top: 15px;">الهكرز ما بدوروا على "ثغرة بالكود"، بدوروا على "ثغرة فيك أنت".</p>
+        </div>
+    </section>
+
+    <!-- SLIDE 8: PASSWORDS -->
+    <section class="slide" data-theme="cyber">
+        <div class="content-box">
+            <h2>Passwords</h2>
+            <p>أكبر مصيبة هي <strong>"Credential Stuffing"</strong>. الهكرز عندهم داتا فيها ملايين الباسووردات المسربة. اذا بتستخدم نفس الباسوورد للفيسبوك ولموقع "ألعاب" انسرق بالـ 2015، ف حسابك الفيسبوك يعتبر مسروق.</p>
+
+            <div class="card" style="border-right-color: var(--neon-green);">
+                <h4 style="color: var(--neon-green)">1. The Length Rule (Entropy)</h4>
+                <p>الهكر بستخدم برامج بتجرب ملايين الاحتمالات (Brute Force). كل حرف زيادة بتضيفه بضرب الوقت المطلوب بـ 1000.
+                <br><span style="color: var(--neon-red);">• ضعيف:</span> "Ahmad1999" (بنكسر بـ 3 ثواني).
+                <br><span style="color: var(--neon-green);">• قوي:</span> "I_Drink_Coffee_At_Rainbow_St_99" (بده مليون سنة).</p>
+            </div>
+
+            <div class="card" style="border-right-color: var(--neon-green);">
+                <h4 style="color: var(--neon-green)">2. The Savior: 2FA</h4>
+                <p>المصادقة الثنائية (Two-Factor Auth) هي طوق النجاة. حتى لو الهكر معه باسووردك، بضل واقف عالباب بستنى الكود اللي ع تلفونك.
+                <br><strong>نصيحة:</strong> استخدم تطبيق زي <strong>Google Authenticator</strong> بدل الـ SMS لأن الـ SMS ممكن يتزور.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 9: PRIVACY POLICY -->
+    <section class="slide" data-theme="cyber">
+        <div class="content-box">
+            <h2>Privacy Policy</h2>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-user-secret" style="font-size: 3rem; color: var(--neon-red);"></i>
+            </div>
+            
+            <p>القاعدة اللي لازم تحفظها بصم: <strong>"If the product is free, YOU are the product."</strong></p>
+            <p>الشركات بتجمع عنك <strong>Metadata</strong>. مش بس "شو كتبت"، بل "كيف تصرفت":</p>
+
+            <div class="card danger">
+                <ul>
+                    <li><strong style="color: var(--neon-red)">Location History:</strong> جوجل وتيك توك بعرفوا وين بيتك، وين شغلك، ووين بتسهر، وقديش بتقعد بكل مكان.</li>
+                    <li><strong style="color: var(--neon-red)">Social Graph:</strong> بعرفوا مين أعز صحابك من كثرة التفاعل، ومين العيلة.</li>
+                    <li><strong style="color: var(--neon-red)">Psychological Profile:</strong> بعرفوا شو بخوفك، وشو بفرحك، عشان يطلعولك إعلانات تلعب ع مشاعرك.</li>
+                </ul>
+                <p class="warning">النصيحة: فوت ع الـ Settings > Privacy وطفي الـ Location Permissions للتطبيقات اللي ما بتحتاجها.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 10: HARDWARE THREATS -->
+    <section class="slide" data-theme="cyber">
+        <div class="content-box" style="border-color: var(--neon-red);">
+            <h2 style="color: var(--neon-red);">Hardware Threats</h2>
+
+            <div class="card danger">
+                <h3 style="color:var(--neon-red); margin-top:0;"><i class="fa-solid fa-wifi"></i> The "Evil Twin" Wi-Fi</h3>
+                <p><strong>التوأم الشرير:</strong> بتروح ع مول أو كوفي شوب، بتلاقي شبكة "Free WiFi". بتشبك عليها.
+                <br>فعلياً، هي بتكون جهاز "Pineapple" مع هكر قاعد بالزاوية. كل اشي بتعمله (باسووردات، صور، شات) بمرق من جهازه (Man-in-the-Middle).
+                <br><strong>الحل:</strong> طفي الـ WiFi بالأماكن العامة واستخدم الـ 4G.</p>
+            </div>
+
+            <div class="card danger">
+                <h3 style="color:var(--neon-red); margin-top:0;"><i class="fa-solid fa-plug"></i> Juice Jacking</h3>
+                <p>فتحات الـ USB اللي بالحيط في المطارات والأماكن العامة ممكن تكون معدلة لسرقة الداتا (Data Transfer) مش بس شحن.
+                <br><strong>الحل:</strong> استخدم "USB Data Blocker" (قطعة صغيرة بتفصل الداتا) أو اشحن من المحول (الراسية) مش من الـ USB مباشرة.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 11: SOCIAL ENGINEERING -->
+    <section class="slide" data-theme="cyber">
+        <div class="content-box">
+            <h2>Social Engineering</h2>
+            <p>ليش الهكر يتعب حاله أشهر يبرمج فيروس، اذا بقدر يضحك عليك بمسج ويخليك تعطيه الباسوورد؟</p>
+            
+            <div class="card">
+                <h4 style="color: var(--neon-green)">1. Smishing (SMS Phishing)</h4>
+                <p>هاي منتشرة كثير بالأردن. بتوصلك مسج من "البريد الأردني" أو "أرامكس":
+                <br><em>"شحنتك محجوزة، ادفع دينار ونص عشان تستلمها."</em>
+                <br>بتكبس عالرابط، بتدخل بيانات الفيزا، وهيك سرقوا الكرت. دقق ع الرابط دائماً.</p>
+            </div>
+
+            <div class="card">
+                <h4 style="color: var(--neon-green)">2. The "Help Me" Scam (Discord)</h4>
+                <p>بجيك واحد بقلك: "ممكن تجرب اللعبة اللي برمجتها؟" أو "صوتلي بمسابقة".
+                <br>ببعثلك ملف EXE. مجرد ما تشغله، بسرق الـ Session Tokens تبعونك. يعني بدخل ع حسابك بدون باسوورد وبغير الإيميل والرقم بثواني.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 12: MALWARE & RANSOMWARE -->
+    <section class="slide" data-theme="cyber">
+        <div class="content-box" style="border-color: var(--neon-red);">
+            <div style="text-align: center;"><i class="fa-solid fa-skull-crossbones" style="font-size: 3rem; color: var(--neon-red);"></i></div>
+            <h2 style="color: var(--neon-red);">Malware & Ransomware</h2>
+            
+            <p>الـ Malware هو أي برنامج خبيث (فيروس)، بس أخطر نوع هو <strong>Ransomware (برامج الفدية)</strong>.</p>
+
+            <div class="card danger">
+                <h4 style="color: var(--neon-red)">The Scenario (السيناريو)</h4>
+                <p>1. بتنزل ملف "كراك" للعبة أو برنامج مجاني من موقع مشبوه.
+                <br>2. فجأة، كل ملفاتك، صورك، وشغل الجامعة بتحولوا لملفات مسكرة (Encrypted).
+                <br>3. بتطلعلك شاشة حمراء: <em>"ملفاتك تشفرت. ادفع 500$ بيتكوين عشان نرجعلك ياها."</em></p>
+            </div>
+
+            <div class="card" style="border-right-color: var(--neon-green);">
+                <h4 style="color: var(--neon-green)">Protection (الحماية)</h4>
+                <p><strong>1. Offline Backup:</strong> الحل الوحيد المضمون. انسخ ملفاتك المهمة ع "هارد ديسك خارجي" وافصله عن الكمبيوتر.
+                <br><strong>2. لا تنزل كراكات:</strong> المصدر الأول للفيروسات هو الـ Cracked Software.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 13: ENCRYPTION & DECRYPTION -->
+    <section class="slide" data-theme="cyber">
+        <div class="content-box">
+            <h2>Encryption & Decryption</h2>
+            <p>كيف نحمي بياناتنا؟ الجواب هو الرياضيات (Encryption).</p>
+            
+            <div class="card" style="border-right-color: var(--neon-cyan);">
+                <h4 style="color: var(--neon-cyan)">Encryption (القفل)</h4>
+                <p>هو تحويل البيانات من "نص مفهوم" لـ "خربشات" ما حدا بقدر يقرأها إلا اللي معه المفتاح.
+                <br><strong>مثال:</strong> كلمة "Hello" بتصير "Xy9#m2@L".
+                <br>هذا اللي بصير لما تبعث مسج ع الواتساب (End-to-End Encryption).</p>
+            </div>
+
+            <div class="card" style="border-right-color: var(--neon-pink);">
+                <h4 style="color: var(--neon-pink)">Decryption (المفتاح)</h4>
+                <p>هو عملية إرجاع الـ "خربشات" لنص أصلي باستخدام مفتاح خاص (Private Key).
+                <br>بدون المفتاح، بدك سوبر كمبيوتر يشتغل مليون سنة عشان يفك التشفير.</p>
+            </div>
+
+            <div class="card" style="margin-top: 15px; border-color: var(--neon-green);">
+                <p style="margin:0;"><strong>نصيحة:</strong> دائماً اتأكد إنه الموقع ببلش بـ <strong>HTTPS</strong> (القفل الأخضر). حرف الـ "S" معناه Secure (مشفر).</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 14: CONCLUSION -->
+    <section class="slide center-layout" data-theme="cyber">
+        <div class="content-box" style="border:none; background:transparent; box-shadow:none;">
+            <i class="fa-solid fa-user-astronaut" style="color: var(--neon-green); font-size: 6rem; margin-bottom: 20px;"></i>
+            <h1 class="pulse-text">Stay Curious.</h1>
+            <h1 class="pulse-text" style="color: var(--neon-cyan);">Stay Safe.</h1>
+        </div>
+    </section>
+
+    <div class="controls-area">
+        <div class="progress-bar" id="progress-bar"></div>
+        <button class="nav-btn" onclick="changeSlide(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="nav-btn" onclick="changeSlide(1)"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const progressBar = document.getElementById('progress-bar');
+    const body = document.body;
+    const glitchOverlay = document.getElementById('glitch-overlay');
+
+    function updateSlide() {
+        slides.forEach(slide => slide.classList.remove('active'));
+        slides[currentSlide].classList.add('active');
+        
+        // Update Progress
+        const progressPercentage = ((currentSlide + 1) / totalSlides) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+
+        // THEME LOGIC
+        const theme = slides[currentSlide].getAttribute('data-theme');
+        if (theme === 'cyber') {
+            body.classList.remove('theme-ai');
+            body.classList.add('theme-cyber');
+        } else if (theme === 'ai') {
+            body.classList.remove('theme-cyber');
+            body.classList.add('theme-ai');
+        }
+
+        // GLITCH LOGIC (If hitting the Transition Slide)
+        if (theme === 'transition') {
+            triggerGlitch();
+            setTimeout(() => {
+                changeSlide(1);
+            }, 2000);
+        }
+    }
+
+    function triggerGlitch() {
+        glitchOverlay.classList.add('glitch-active');
+        setTimeout(() => {
+            glitchOverlay.classList.remove('glitch-active');
+        }, 2000);
+    }
+
+    function changeSlide(direction) {
+        currentSlide += direction;
+        if (currentSlide < 0) currentSlide = 0;
+        if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
+        updateSlide();
+    }
+
+    function copyPrompt(id) {
+        const text = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Copied!");
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    // Swipe Logic
+    let touchStartX = 0;
+    let touchEndX = 0;
+    document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+    document.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        if (touchEndX < touchStartX - 50) changeSlide(1); 
+        if (touchEndX > touchStartX + 50) changeSlide(-1);
+    });
+
+    // Keyboard support
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') changeSlide(1);
+        else if (e.key === 'ArrowLeft') changeSlide(-1);
+    });
+
+    // Init
+    updateSlide();
+</script>
+
+</body>
+</html>

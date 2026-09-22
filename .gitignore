@@ -12,6 +12,3 @@ desktop.ini
 # Node / build noise (not used, but harmless to ignore)
 node_modules/
 dist/
-
-# Local agent state
-.opencode/
